@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.trellex</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <string>{{UV_PATH}}</string>
+        <string>run</string>
+        <string>python</string>
+        <string>app.py</string>
+        <string>--host</string>
+        <string>{{HOST}}</string>
+        <string>--port</string>
+        <string>{{PORT}}</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <string>{{TRELLEX_DIR}}</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <true/>
+    
+    <key>StandardOutPath</key>
+    <string>{{TRELLEX_DIR}}/logs/trellex.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>{{TRELLEX_DIR}}/logs/trellex.error.log</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+</dict>
+</plist>
