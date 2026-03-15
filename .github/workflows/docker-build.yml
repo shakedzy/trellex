@@ -1,0 +1,37 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JFrog Fly
+        uses: jfrog/fly-action@v1
+        with:
+          url: https://toads.jfrog.io
+
+      - name: Build Docker image
+        run: |
+          docker build -t toads.jfrog.io/docker/trellex:${{ github.sha }} .
+          docker tag toads.jfrog.io/docker/trellex:${{ github.sha }} toads.jfrog.io/docker/trellex:latest
+
+      - name: Push Docker image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker push toads.jfrog.io/docker/trellex:${{ github.sha }}
+          docker push toads.jfrog.io/docker/trellex:latest
