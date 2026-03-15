@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trellex - Personal Kanban</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='10' width='25' height='80' rx='4' fill='%236366f1'/><rect x='40' y='10' width='25' height='55' rx='4' fill='%2310b981'/><rect x='70' y='10' width='25' height='35' rx='4' fill='%23f59e0b'/></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="logo">Trellex</h1>
+            </div>
+            <nav class="header-nav">
+                <button class="nav-btn active" data-view="kanban">Kanban</button>
+                <button class="nav-btn" data-view="archive">Archived</button>
+            </nav>
+            <div class="header-right">
+                <div class="filter-container">
+                    <button class="icon-btn" id="filter-btn" title="Filter by tag">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                    </button>
+                    <div class="filter-dropdown" id="filter-dropdown">
+                        <!-- Filter options will be rendered here -->
+                    </div>
+                </div>
+                <button class="icon-btn theme-toggle" id="theme-toggle" title="Toggle theme">
+                    <!-- Moon icon (dark mode) -->
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <!-- Sun icon (light mode) -->
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <!-- Auto/System icon -->
+                    <svg class="auto-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2a10 10 0 0 1 0 20V2z" fill="currentColor"></path>
+                    </svg>
+                </button>
+                <button class="icon-btn" id="settings-btn" title="Settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Kanban View -->
+            <div id="kanban-view" class="view active">
+                <div class="kanban-board" id="kanban-board">
+                    <!-- Lists will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Archive View -->
+            <div id="archive-view" class="view">
+                <div class="archive-container">
+                    <h2 class="archive-title">Archived Tickets</h2>
+                    <div class="archive-grid" id="archive-grid">
+                        <!-- Archived tickets will be rendered here -->
+                    </div>
+                    <div class="archive-empty" id="archive-empty">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                            <rect x="1" y="3" width="22" height="5"></rect>
+                            <line x1="10" y1="12" x2="14" y2="12"></line>
+                        </svg>
+                        <p>No archived tickets</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Ticket Modal -->
+    <div class="modal-overlay" id="ticket-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <input type="text" class="modal-title-input" id="modal-title" placeholder="Ticket title...">
+                <button class="icon-btn modal-close" id="modal-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <label class="modal-label">Description</label>
+                    <textarea class="modal-textarea" id="modal-description" placeholder="Add a description..."></textarea>
+                </div>
+
+                <div class="modal-section">
+                    <label class="modal-label">Status</label>
+                    <input type="text" class="modal-input" id="modal-status" placeholder="e.g., WIP, Review, Blocked...">
+                </div>
+                
+                <div class="modal-section modal-row">
+                    <div class="modal-row-item">
+                        <label class="modal-label">Priority</label>
+                        <div class="priority-selector">
+                            <select class="modal-input" id="modal-priority">
+                                <option value="high">High</option>
+                                <option value="none" selected>Regular</option>
+                                <option value="low">Low</option>
+                            </select>
+                            <div class="priority-icon-preview" id="priority-icon-preview"></div>
+                        </div>
+                    </div>
+                    <div class="modal-row-item">
+                        <label class="modal-label">Due Date</label>
+                        <div class="due-date-input-container">
+                            <input type="date" class="modal-input" id="modal-due-date">
+                            <button type="button" class="btn btn-small btn-secondary" id="clear-due-date-btn" title="Clear due date">Clear</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <label class="modal-label">Tasks</label>
+                    <div class="tasks-list" id="modal-tasks">
+                        <!-- Tasks will be rendered here -->
+                    </div>
+                    <div class="task-input-container">
+                        <input type="text" class="modal-input" id="modal-task-input" placeholder="Add a task...">
+                        <button class="btn btn-small" id="add-task-btn">Add</button>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <label class="modal-label">Tags</label>
+                    <div class="tags-container" id="modal-tags">
+                        <!-- Tags will be rendered here -->
+                    </div>
+                    <div class="tag-input-container">
+                        <input type="text" class="modal-input tag-input" id="modal-tag-input" placeholder="Add a tag...">
+                        <input type="color" class="tag-color-input" id="modal-tag-color" value="#6366f1" title="Tag color">
+                        <button class="btn btn-small" id="add-tag-btn">Add</button>
+                    </div>
+                    <div class="existing-tags" id="existing-tags">
+                        <!-- Existing tags will be rendered here -->
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <label class="modal-label">Repository Links</label>
+                    <div class="links-container" id="modal-repos">
+                        <!-- Repo links will be rendered here -->
+                    </div>
+                    <div class="link-input-container">
+                        <input type="url" class="modal-input" id="modal-repo-url" placeholder="Add repository URL...">
+                        <button class="btn btn-small" id="add-repo-btn">Add</button>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <label class="modal-label">Documentation Links</label>
+                    <div class="links-container" id="modal-docs">
+                        <!-- Doc links will be rendered here -->
+                    </div>
+                    <div class="link-input-container">
+                        <input type="text" class="modal-input" id="modal-docs-title" placeholder="Title">
+                        <input type="url" class="modal-input" id="modal-docs-url" placeholder="URL">
+                        <button class="btn btn-small" id="add-docs-btn">Add</button>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <label class="modal-label">Contacts</label>
+                    <div class="contacts-container" id="modal-contacts">
+                        <!-- Contact items will be rendered here -->
+                    </div>
+                    <div class="contact-input-wrapper" id="contact-input-wrapper">
+                        <div class="contact-input-container">
+                            <input type="text" class="modal-input" id="modal-contact-input" placeholder="Start typing to search contacts..." autocomplete="off">
+                            <div class="contact-source-toggle">
+                                <button type="button" class="source-btn active" data-source="directory" title="Search company directory">Directory</button>
+                                <button type="button" class="source-btn" data-source="all" title="Search all contacts">All</button>
+                            </div>
+                        </div>
+                        <div class="contact-suggestions" id="contact-suggestions">
+                            <!-- Autocomplete suggestions appear here -->
+                        </div>
+                    </div>
+                    <div class="google-connect-prompt" id="google-connect-prompt" style="display: none;">
+                        <p>Connect your Google account to search contacts</p>
+                        <button class="btn btn-small" id="connect-google-btn">Connect Google</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="modal-archive-btn">Archive</button>
+                <button class="btn btn-danger" id="modal-delete-btn">Delete</button>
+                <button class="btn btn-primary" id="modal-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal settings-modal">
+            <div class="modal-header">
+                <h2 class="modal-title-static">Settings</h2>
+                <button class="icon-btn modal-close" id="settings-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Background Gradient Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Background Gradient</h3>
+                    <div class="gradient-presets" id="gradient-presets">
+                        <!-- Gradient presets will be rendered here -->
+                    </div>
+                    <div class="gradient-custom">
+                        <div class="color-picker-group">
+                            <label>Start Color</label>
+                            <input type="color" id="gradient-start" value="#1e1b4b">
+                        </div>
+                        <div class="color-picker-group">
+                            <label>End Color</label>
+                            <input type="color" id="gradient-end" value="#0f172a">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Lists Management Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Manage Lists</h3>
+                    <div class="lists-manager" id="lists-manager">
+                        <!-- Lists will be rendered here -->
+                    </div>
+                    <button class="btn btn-secondary" id="add-new-list-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add New List
+                    </button>
+                </div>
+                
+                <!-- Tags Management Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Manage Tags</h3>
+                    <div class="tags-manager" id="tags-manager">
+                        <!-- Tags will be rendered here -->
+                    </div>
+                    <p class="settings-hint">Click color to change. Double-click name to rename. Click ✕ to delete.</p>
+                </div>
+                
+                <!-- Google Account Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Google Account</h3>
+                    <div id="google-account-section">
+                        <div id="google-not-configured" style="display: none;">
+                            <p class="settings-hint">Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables to enable contact search.</p>
+                        </div>
+                        <div id="google-disconnected" style="display: none;">
+                            <p class="settings-hint">Connect your Google account to search contacts from your Google Workspace directory.</p>
+                            <button class="btn btn-secondary" id="settings-connect-google-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                    <polyline points="10 17 15 12 10 7"></polyline>
+                                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                                </svg>
+                                Connect Google Account
+                            </button>
+                        </div>
+                        <div id="google-connected" style="display: none;">
+                            <p class="settings-hint google-connected-text">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Google account connected
+                            </p>
+                            <button class="btn btn-secondary btn-danger-outline" id="settings-disconnect-google-btn">
+                                Disconnect
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="settings-save-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- List Edit Modal -->
+    <div class="modal-overlay" id="list-modal">
+        <div class="modal modal-small">
+            <div class="modal-header">
+                <h2 class="modal-title-static" id="list-modal-title">Edit List</h2>
+                <button class="icon-btn modal-close" id="list-modal-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <label class="modal-label">Title</label>
+                    <input type="text" class="modal-input" id="list-title-input" placeholder="List title...">
+                </div>
+                <div class="modal-section">
+                    <label class="modal-label">Emoji</label>
+                    <div class="emoji-input-row">
+                        <input type="text" class="modal-input emoji-input" id="list-emoji-input" placeholder="?" maxlength="4" readonly>
+                        <button type="button" class="btn btn-small emoji-picker-btn" id="emoji-picker-btn">Pick</button>
+                        <button type="button" class="btn btn-small btn-secondary" id="emoji-clear-btn">Clear</button>
+                    </div>
+                    <div class="emoji-picker-container" id="emoji-picker-container">
+                        <emoji-picker id="emoji-picker"></emoji-picker>
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <label class="modal-label">Color</label>
+                    <div class="color-presets" id="list-color-presets">
+                        <!-- Color presets will be rendered here -->
+                    </div>
+                    <div class="custom-color-row">
+                        <label>Custom:</label>
+                        <input type="color" class="color-input-small" id="list-color-input" value="#6366f1">
+                    </div>
+                </div>
+                <div class="modal-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="list-completed-checkbox">
+                        <span>Mark as completed list</span>
+                    </label>
+                    <p class="settings-hint">Tickets in completed lists won't show deadline warnings</p>
+                </div>
+                <div class="modal-section">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="list-quickadd-checkbox">
+                        <span>Default for Quick Add (⌘K)</span>
+                    </label>
+                    <p class="settings-hint">New cards created with ⌘K / Ctrl+K will be added to this list</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="list-delete-btn">Delete</button>
+                <button class="btn btn-primary" id="list-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/kanban.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modal.js') }}"></script>
+</body>
+</html>
