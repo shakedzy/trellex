@@ -1,0 +1,14 @@
+.venv*
+.vscode*
+.cursor*
+.playwright-mcp*
+
+.DS_Store
+.env
+
+*__pycache__*
+*egg.info*
+
+data/*
+logs/*
+session/*
